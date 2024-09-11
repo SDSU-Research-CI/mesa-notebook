@@ -1,4 +1,5 @@
-FROM gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/minimal:v1.3
+ARG BASE_IMAGE=quay.io/jupyter/minimal-notebook:2024-07-29
+FROM ${BASE_IMAGE}
 
 USER root
 WORKDIR /opt

@@ -11,4 +11,4 @@ This Jupyter Notebook image contains the following software in addition to its b
 - unzip
 - [MESA](https://docs.mesastar.org/en/release-r24.03.1/)
 
-This image is based upon the [National Research Platform's version of the Jupyter Stack SciPy image](https://gitlab.nrp-nautilus.io/prp/jupyter-stack/-/tree/prp/images/scipy-notebook)
+This image is based upon the [Jupyter Stack Minimal image](https://github.com/jupyter/docker-stacks/tree/main/images/minimal-notebook)
