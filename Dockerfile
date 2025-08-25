@@ -1,5 +1,8 @@
-ARG BASE_IMAGE=quay.io/jupyter/minimal-notebook:2024-07-29
+ARG BASE_IMAGE=quay.io/jupyter/minimal-notebook:2025-07-07
 FROM ${BASE_IMAGE}
+
+ARG MESA_SDK_VERSION=24.7.1
+ARG MESA_VERSION=24.08.1
 
 USER root
 WORKDIR /opt
@@ -25,23 +28,22 @@ WORKDIR /home/${NB_USER}
 
 # Download & Install MESA SDK
 # See docs: http://user.astro.wisc.edu/~townsend/static.php?ref=mesasdk#Compatibility
-RUN curl -O "http://user.astro.wisc.edu/~townsend/resource/download/mesasdk/mesasdk-x86_64-linux-23.7.3.tar.gz"
+RUN curl -O "http://user.astro.wisc.edu/~townsend/resource/download/mesasdk/mesasdk-x86_64-linux-${MESA_SDK_VERSION}.tar.gz"
 
-RUN tar xvfz mesasdk-x86_64-linux-23.7.3.tar.gz -C /opt/mesasdk \
- && rm mesasdk-x86_64-linux-23.7.3.tar.gz \
+RUN tar xvfz mesasdk-x86_64-linux-${MESA_SDK_VERSION}.tar.gz -C /opt/mesasdk \
+ && rm mesasdk-x86_64-linux-${MESA_SDK_VERSION}.tar.gz \
  && mv /opt/mesasdk/mesasdk/* /opt/mesasdk \
  && rmdir /opt/mesasdk/mesasdk/ \
  && export MESASDK_ROOT=/opt/mesasdk \
  && source $MESASDK_ROOT/bin/mesasdk_init.sh
 
 # Download and install MESA
-# See docs: https://docs.mesastar.org/en/release-r24.03.1/using_mesa/running.html
-RUN curl -O "https://zenodo.org/records/10783349/files/mesa-r24.03.1.zip?download=1"
+# See docs: https://docs.mesastar.org/en/release-r24.08.1/using_mesa/running.html
+RUN curl -L -o mesa-${MESA_VERSION}.zip "https://zenodo.org/records/13353788/files/mesa-${MESA_VERSION}.zip?download=1"
  
-RUN mv mesa-r24.03.1.zip?download=1 mesa-r24.03.1.zip \
- && unzip mesa-r24.03.1.zip -d /opt/mesa \
- && rm mesa-r24.03.1.zip \
- && export MESA_DIR=/opt/mesa/mesa-r24.03.1 \
+RUN unzip mesa-${MESA_VERSION}.zip -d /opt/mesa \
+ && rm mesa-${MESA_VERSION}.zip \
+ && export MESA_DIR=/opt/mesa/mesa-${MESA_VERSION} \
  && export OMP_NUM_THREADS=2 \
  && export MESASDK_ROOT=/opt/mesasdk \
  && source $MESASDK_ROOT/bin/mesasdk_init.sh \
@@ -57,10 +59,10 @@ WORKDIR /opt
 # RUN chown -R root:root /opt/mesa*
 
 ENV MESASDK_ROOT=/opt/mesasdk
-ENV MESA_DIR=/opt/mesa/mesa-r24.03.1
+ENV MESA_DIR=/opt/mesa/mesa-${MESA_VERSION}
 
 # Add MESA Environment variables to skeleton .bashrc
-RUN echo -e "# MESA Environment variables \n export MESA_DIR=/opt/mesa/mesa-r24.03.1 \n export OMP_NUM_THREADS=2 \n export MESASDK_ROOT=/opt/mesasdk \n source $MESASDK_ROOT/bin/mesasdk_init.sh \n export PATH=$PATH:$MESA_DIR/scripts/shmesa" >> /etc/skel/.bashrc
+RUN echo -e "# MESA Environment variables \n export MESA_DIR=/opt/mesa/mesa-${MESA_VERSION} \n export OMP_NUM_THREADS=2 \n export MESASDK_ROOT=/opt/mesasdk \n source $MESASDK_ROOT/bin/mesasdk_init.sh \n export PATH=$PATH:$MESA_DIR/scripts/shmesa" >> /etc/skel/.bashrc
 
 # Switch back to notebook user
 USER $NB_USER
